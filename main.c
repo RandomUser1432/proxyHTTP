@@ -1,8 +1,9 @@
 #include "common.h"
+#include "gestionclient.h"
 
 void readSocket(int currentsocket, fd_set rset);
 
-usage(){
+void usage(){
   printf("usage : servmulti numero_port_serveur\n");
 }
 

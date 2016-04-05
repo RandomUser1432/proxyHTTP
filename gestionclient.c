@@ -1,4 +1,5 @@
-#include "common.h" 
+#include "common.h"
+#include "gestionclient.h"
 
 int readmsg(int currentsocket, char *msg){
 	int size = 0;

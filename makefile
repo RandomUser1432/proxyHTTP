@@ -1,11 +1,11 @@
-proxyHTTP: main.o gestionclient.o common.h
+proxyHTTP: main.o gestionclient.o common.h gestionclient.h
 	gcc -o proxyHTTP main.o gestionclient.o common.h
 
-main.o:	main.c
-	gcc -c main.c
+main.o:	main.c common.h gestionclient.h
+	gcc -c main.c common.h gestionclient.h
 
-gestionclient.o: gestionclient.c
-	gcc -c gestionclient.c
+gestionclient.o: gestionclient.c common.h gestionclient.h
+	gcc -c gestionclient.c common.h gestionclient.h
 
 clear:
-	rm *.o proxyHTTP *~
+	rm -rf *.o proxyHTTP
