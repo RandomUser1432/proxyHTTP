@@ -14,10 +14,3 @@
 #define REQUESTSIZE 3000
 #define RESPONSESIZE 65536
 #define MAXNBROW 20
-
-//Prototype de fonction
-int readmsg(int currentsocket, char *msg);
-int readresponse(int currentsocket, char *response);
-void readmsgHTTP(char *msg, char **request);
-void gettypemsg(char *header, char *type);
-int creategetsocket(char *hostname, char *port);

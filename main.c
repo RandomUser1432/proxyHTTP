@@ -145,7 +145,7 @@ int main(int argc, char **argv){
 
 		k = 0; 
 
-		while((nbentree > 0) && (k < FD_SETSIZE)){
+		while((nbentree >= 0) && (k < FD_SETSIZE)){
 			
 			if((currentsocket = getsocket[k]) >= 0 && FD_ISSET(currentsocket, &pset)){
 				
@@ -195,7 +195,7 @@ int main(int argc, char **argv){
 					if (strcmp(type,"GET") == 0){
 						hostname = request[1]+6;
 						
-						/*						
+						/*					
 
 						if (getsocket[k] != -1){
 							close(getsocket[k]);
@@ -245,7 +245,6 @@ int main(int argc, char **argv){
 			exit(1);
 		}
 		//On renvoie une erreur si tous les descripteurs n'ont pas ete traites
-
 		
 
 	}
