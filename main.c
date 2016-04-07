@@ -58,7 +58,7 @@ int main(int argc, char **argv){
 			maxfdp1 = listensocket[nblisten] + 1;
 		}
 
-		if(bind(listensocket[nblisten], cursor->ai_addr, cursor->ai_addrlen) < 0){
+		if(bind(listensocket[nblisten], cursor->ai_addr, cursor->ai_addrlen) < 0){	//Survient si le numéros de port est < 1024
 			printf("Problème bind pour la socket numero: %d\n", nblisten+1);
 			exit(1);
 		}
