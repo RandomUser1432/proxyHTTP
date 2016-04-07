@@ -149,7 +149,7 @@ int main(int argc, char **argv){
 			
 			if((currentsocket = getsocket[k]) >= 0 && FD_ISSET(currentsocket, &pset)){
 				
-				size = readmsg(currentsocket, response);
+				size = readresponse(currentsocket, response);
 				//On lit les donnees sur le socket
 
 				if(size < 0){

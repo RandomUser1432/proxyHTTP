@@ -64,7 +64,7 @@ void gettypemsg(char *header, char *type){
 
 }
 
-//Renvoie une socket vers le nom de domaine pour le service demande
+// Ouvre une socket vers le nom de domaine pour le service demande
 int creategetsocket(char *hostname, char *port){
 	
 	int error, getsocket = 0;
