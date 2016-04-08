@@ -1,5 +1,3 @@
-
-
 //Prototype de fonction
 int readmsg(int currentsocket, char *msg);
 int readresponse(int currentsocket, char *response);

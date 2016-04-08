@@ -245,8 +245,16 @@ int main(int argc, char **argv){
 			test = select(maxfdp1, &pset, NULL, NULL, NULL);
 			printf("La valeur de retour du select est de %d\n", test);
 
+			int l = 0;
+			while (l < FD_SETSIZE) {
+				if (getsocket[l] != -1) {
+					printf("la socket numéro %d à la case %d n'est pas traitée\n", getsocket[l],l);
+				}
+				l++;
+			}
+
 			perror("Probleme avec select: nombre d'entree non correcte");
-			printf("%d\n", nbentree);
+			printf("Il reste encore %d entree(s)\n", nbentree);
 			exit(1);
 		}
 		//On renvoie une erreur si tous les descripteurs n'ont pas ete traites
