@@ -63,7 +63,7 @@ int main(int argc, char **argv){
 			exit(1);
 		}
 
-		if(listen(listensocket[nblisten], SOMAXCONN) < 0){
+		if(listen(listensocket[nblisten], SOMAXCONN) != 0){
 			printf("Problème listen pour la socket numero: %d\n", nblisten+1);
 			exit(1);
 		}
@@ -239,7 +239,12 @@ int main(int argc, char **argv){
 		}
 		//On gere les sockets de dialogue avec les serveurs HTTP/HTTPS et nos clients proxy
 
+		int test = -1;
 		if(nbentree != 0){
+
+			test = select(maxfdp1, &pset, NULL, NULL, NULL);
+			printf("La valeur de retour du select est de %d\n", test);
+
 			perror("Probleme avec select: nombre d'entree non correcte");
 			printf("%d\n", nbentree);
 			exit(1);
