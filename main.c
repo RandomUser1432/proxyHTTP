@@ -163,7 +163,7 @@ int main(int argc, char **argv){
 					printf("\n********HTTP Response********\n");
 					printf("%s\n", response);	
 					printf("************************\n");	
-					send(talksocket[k], response, RESPONSESIZE, 0);
+					send(talksocket[k], response, size, 0);
 					//On envoit la response HTTP au client correspondant
 				}		
 
@@ -217,13 +217,13 @@ int main(int argc, char **argv){
 						FD_SET(getsocket[k], &rset);
 						//On demande la surveillance de la socket par le select
 					
-						send(getsocket[k], msg, REQUESTSIZE, 0);
+						send(getsocket[k], msg, size, 0);
 						//On envoie le request HTTP de notre client au serveur demande
 
 					}else if (strcmp(type,"CONNECT") == 0){
 
 					}else{
-						send(getsocket[k], msg, REQUESTSIZE, 0);
+						send(getsocket[k], msg, size, 0);
 					}	
 
 				}						

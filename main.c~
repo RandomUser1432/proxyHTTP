@@ -63,7 +63,7 @@ int main(int argc, char **argv){
 			exit(1);
 		}
 
-		if(listen(listensocket[nblisten], SOMAXCONN) < 0){
+		if(listen(listensocket[nblisten], SOMAXCONN) != 0){
 			printf("Problème listen pour la socket numero: %d\n", nblisten+1);
 			exit(1);
 		}
@@ -145,11 +145,11 @@ int main(int argc, char **argv){
 
 		k = 0; 
 
-		while((nbentree > 0) && (k < FD_SETSIZE)){
+		while((nbentree >= 0) && (k < FD_SETSIZE)){
 			
 			if((currentsocket = getsocket[k]) >= 0 && FD_ISSET(currentsocket, &pset)){
 				
-				size = readresponse(currentsocket, response);
+				size = readmsg(currentsocket, response);
 				//On lit les donnees sur le socket
 
 				if(size < 0){
@@ -163,7 +163,7 @@ int main(int argc, char **argv){
 					printf("\n********HTTP Response********\n");
 					printf("%s\n", response);	
 					printf("************************\n");	
-					send(talksocket[k], response, RESPONSESIZE, 0);
+					send(talksocket[k], response, size, 0);
 					//On envoit la response HTTP au client correspondant
 				}		
 
@@ -195,7 +195,7 @@ int main(int argc, char **argv){
 					if (strcmp(type,"GET") == 0){
 						hostname = request[1]+6;
 						
-						/*						
+						/*					
 
 						if (getsocket[k] != -1){
 							close(getsocket[k]);
@@ -223,7 +223,7 @@ int main(int argc, char **argv){
 					}else if (strcmp(type,"CONNECT") == 0){
 
 					}else{
-						send(getsocket[k], msg, REQUESTSIZE, 0);
+						send(getsocket[k], msg, size, 0);
 					}	
 
 				}						
@@ -239,13 +239,17 @@ int main(int argc, char **argv){
 		}
 		//On gere les sockets de dialogue avec les serveurs HTTP/HTTPS et nos clients proxy
 
+		int test = -1;
 		if(nbentree != 0){
+
+			test = select(maxfdp1, &pset, NULL, NULL, NULL);
+			printf("La valeur de retour du select est de %d\n", test);
+
 			perror("Probleme avec select: nombre d'entree non correcte");
 			printf("%d\n", nbentree);
 			exit(1);
 		}
 		//On renvoie une erreur si tous les descripteurs n'ont pas ete traites
-
 		
 
 	}
