@@ -203,13 +203,8 @@ int main(int argc, char **argv){
 						}
 
 						*/
-		
-						if (strcmp(type,"GET") == 0){
-							getsocket[k] = creategetsocket(hostname, "80");
-							//Si le request est de type GET on cree une socket vers le serveur HTTP correspond au hostname
-						}else{
-							getsocket[k] = creategetsocket(hostname, "443");
-						}
+						getsocket[k] = creategetsocket(hostname, "80");
+						//Si le request est de type GET on cree une socket vers le serveur HTTP correspondant au hostname
 
 						if (getsocket[k] > maxfdp1-1){
 							maxfdp1 = getsocket[k] + 1;
@@ -220,11 +215,32 @@ int main(int argc, char **argv){
 						send(getsocket[k], msg, size, 0);
 						//On envoie le request HTTP de notre client au serveur demande
 
-					}else if (strcmp(type,"CONNECT") == 0){
+					} else if (strcmp(type,"CONNECT") == 0) {
+
+
+						char *inter = request[4] + 6;
+						int taille = strlen(inter) - 4;
+						hostname = (char *) malloc(taille * sizeof(char));
+						memcpy(hostname, &inter[0],taille);
+						//hostname[taille] = '\0';
+						printf("%s\n", hostname);
+
+						getsocket[k] = creategetsocket(hostname,"443");
+						//Si la requéte est de type CONNECT, on crée une socket vers le serveur HTTPS correspondant au hostname
+
+						if (getsocket[k] < maxfdp1 - 1) {
+							maxfdp1 = getsocket[k] + 1;
+						}
+						FD_SET(getsocket[k], &rset);
+						//On demande la surveillance de la socket par le select
+					
+						send(getsocket[k], msg, size, 0);
+						//On envoie le request HTTPS de notre client au serveur demande
+
 
 					}else{
 						send(getsocket[k], msg, size, 0);
-					}	
+					}
 
 				}						
 
