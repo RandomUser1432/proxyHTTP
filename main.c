@@ -239,6 +239,7 @@ int main(int argc, char **argv){
 		}
 		//On gere les sockets de dialogue avec les serveurs HTTP/HTTPS et nos clients proxy
 
+/*
 		int test = -1;
 		if(nbentree != 0){
 
@@ -258,7 +259,7 @@ int main(int argc, char **argv){
 			exit(1);
 		}
 		//On renvoie une erreur si tous les descripteurs n'ont pas ete traites
-		
+*/		
 
 	}
 	//On boucle que le traitement des donnees recu par les sockets
