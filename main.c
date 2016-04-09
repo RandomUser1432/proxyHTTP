@@ -15,10 +15,10 @@ int main(int argc, char **argv){
     	}
 	//Probleme rencontre si il n'y a pas de service en argument
 
-	int talksocket[FD_SETSIZE], getsocket[FD_SETSIZE], listensocket[2] = {0};
+	int talksocket[FD_SETSIZE], getsocket[FD_SETSIZE],service[FD_SETSIZE] = {-1}, listensocket[2] = {0};
 	int nblisten, maxfdp1, nbentree = 0;
 	int i, j , k, length, size, currentsocket = 0;
-	char *hostname, **request, buffinfo[ADDSIZE], msg[REQUESTSIZE], type[REQUESTSIZE], response[RESPONSESIZE];
+	char *hostname, **request, buffinfo[ADDSIZE], msg[REQUESTSIZE], type[REQUESTSIZE], response[RESPONSESIZE],*hostnames[FD_SETSIZE];
 	fd_set rset, pset;
 	struct addrinfo hint, *res, *cursor;
 
@@ -194,7 +194,11 @@ int main(int argc, char **argv){
 	
 					if (strcmp(type,"GET") == 0){
 						hostname = request[1]+6;
-						
+
+						int indice = -1;
+
+						if ((indice = searchString(hostname,hostnames)) == -1) {
+
 						/*					
 
 						if (getsocket[k] != -1){
@@ -206,12 +210,18 @@ int main(int argc, char **argv){
 						getsocket[k] = creategetsocket(hostname, "80");
 						//Si le request est de type GET on cree une socket vers le serveur HTTP correspondant au hostname
 
+						//Enregistrement du service et de l'hostname
+						service[k] = 80;
+						hostnames[k] = hostname;
+
 						if (getsocket[k] > maxfdp1-1){
 							maxfdp1 = getsocket[k] + 1;
 						}
 						FD_SET(getsocket[k], &rset);
 						//On demande la surveillance de la socket par le select
-					
+						
+						}
+
 						send(getsocket[k], msg, size, 0);
 						//On envoie le request HTTP de notre client au serveur demande
 
@@ -222,11 +232,15 @@ int main(int argc, char **argv){
 						int taille = strlen(inter) - 4;
 						hostname = (char *) malloc(taille * sizeof(char));
 						memcpy(hostname, &inter[0],taille);
-						//hostname[taille] = '\0';
+						hostname[taille] = '\0';
 						printf("%s\n", hostname);
 
 						getsocket[k] = creategetsocket(hostname,"443");
 						//Si la requéte est de type CONNECT, on crée une socket vers le serveur HTTPS correspondant au hostname
+
+						//Enregistrement du service et de l'hostname
+						service[k] = 443;
+						hostnames[k] = hostname;
 
 						if (getsocket[k] < maxfdp1 - 1) {
 							maxfdp1 = getsocket[k] + 1;

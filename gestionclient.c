@@ -99,3 +99,31 @@ int creategetsocket(char *hostname, char *port){
 	return getsocket;
 	
 }
+
+//Renvoie l'indice de la derniere socket ayant le meme hostname
+int searchHostname(char *hostname, char **hostnames) {
+	//Variable de retour de la fonction
+	int rep = -1, i = 0;
+
+	for (i = 0; i < FD_SETSIZE; i++) {
+		if (strcmp(hostname, hostnames[i]) == 0) {
+			rep = i;
+		}
+	}
+
+	return rep;
+}
+
+//Renvoie l'indice de la derniere socket ayant le meme numero de port
+int searchService(int service, int *services) {
+	//Variable de retour de fonction
+	int rep = -1,i = 0;
+
+	for (i = 0; i < FD_SETSIZE; i ++) {
+		if (services[i] == service) {
+			rep = i;
+		}
+	}
+
+	return rep;
+}
