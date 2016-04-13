@@ -15,10 +15,11 @@ int main(int argc, char **argv){
     	}
 	//Probleme rencontre si il n'y a pas de service en argument
 
-	int talksocket[FD_SETSIZE], getsocket[FD_SETSIZE], listensocket[2] = {0};
+	int talksocket[FD_SETSIZE], getsocket[FD_SETSIZE], services[FD_SETSIZE], listensocket[2] = {0};
 	int nblisten, maxfdp1, nbentree = 0;
-	int i, j , k, length, size, currentsocket = 0;
-	char *hostname, **request, buffinfo[ADDSIZE], msg[REQUESTSIZE], type[REQUESTSIZE], response[RESPONSESIZE];
+	int i, j , k, length, size, service, currentsocket = 0;
+	char *hostname, **request;
+	char buffinfo[ADDSIZE], msg[REQUESTSIZE], type[REQUESTSIZE], hostnames[FD_SETSIZE][REQUESTSIZE], response[RESPONSESIZE];
 	fd_set rset, pset;
 	struct addrinfo hint, *res, *cursor;
 
@@ -33,6 +34,11 @@ int main(int argc, char **argv){
 
 	for (i = 0; i < MAXNBROW; i++){
 		request[i] = (char *) malloc(REQUESTSIZE * sizeof(char));
+	}
+
+	for (i = 0; i < FD_SETSIZE; i++){
+		strcpy(hostnames[i]," ");
+		services[i] = -1;
 	}
 	
 	if(getaddrinfo(NULL, argv[1], &hint, &res) < 0){
@@ -118,7 +124,7 @@ int main(int argc, char **argv){
 				}
 				//On refuse les clients si le nb de descripteurs a atteint son maximum
 				
-				if((talksocket[j] = accept(listensocket[i], (struct sockaddr*)&addrclient, &length)) < 0){
+				if((talksocket[j] = accept(listensocket[i], (struct sockaddr*)&addrclient, (socklen_t *)&length)) < 0){
 					perror("Probleme d'instanciation d'une socket de dialogue");
 					exit(1);
 				}
@@ -191,40 +197,69 @@ int main(int argc, char **argv){
 					//On obtient le type de request HTTP
 
 					printf("Le type de requête est : %s\n", type);
-	
-					if (strcmp(type,"GET") == 0){
-						hostname = request[1]+6;
-						
-						/*					
-
-						if (getsocket[k] != -1){
-							close(getsocket[k]);
-							FD_CLR(getsocket[k], &rset);
-						}
-
-						*/
-		
-						if (strcmp(type,"GET") == 0){
-							getsocket[k] = creategetsocket(hostname, "80");
-							//Si le request est de type GET on cree une socket vers le serveur HTTP correspond au hostname
-						}else{
-							getsocket[k] = creategetsocket(hostname, "443");
-						}
-
-						if (getsocket[k] > maxfdp1-1){
-							maxfdp1 = getsocket[k] + 1;
-						}
-						FD_SET(getsocket[k], &rset);
-						//On demande la surveillance de la socket par le select
 					
-						send(getsocket[k], msg, REQUESTSIZE, 0);
-						//On envoie le request HTTP de notre client au serveur demande
+					int isRequest = 1;
 
-					}else if (strcmp(type,"CONNECT") == 0){
-
+					if(strcmp(type,"GET") == 0){
+						hostname = request[1]+6;
+						service = 80;
+					}else if(strcmp(type,"CONNECT") == 0){
+						char *inter = request[4] + 6;
+						int taille = strlen(inter) - 4;
+						hostname = (char *) malloc(taille * sizeof(char));
+						memcpy(hostname, &inter[0],taille);
+						hostname[taille] = '\0';
+						service = 443;
 					}else{
+						isRequest = 0;
+					}
+					
+					printf("Le client souhaite se connecter au domaine: %s:%d\n", hostname, service);
+
+					if(!isRequest) //|| strcmp(hostnames[k], hostname) == 0 || service == services[k])
+					{					
 						send(getsocket[k], msg, size, 0);
-					}	
+					}else{
+						if (strcmp(type,"CONNECT") != 0){
+														
+							strcpy(hostnames[k], hostname);
+							services[k] = 80;
+							//Enregistrement du service et de l'hostname							
+
+							getsocket[k] = creategetsocket(hostname, "80");
+							printf("Ouverture d'une socket sur le port %d du serveur\n", services[k]);
+							//Si le request est de type GET on cree une socket vers le serveur HTTP correspondant au hostname
+							if (getsocket[k] > maxfdp1-1){
+								maxfdp1 = getsocket[k] + 1;
+							}
+							FD_SET(getsocket[k], &rset);
+							//On demande la surveillance de la socket par le select
+
+							send(getsocket[k], msg, size, 0);
+							//On envoie le request HTTP de notre client au serveur demande
+
+						}else{						
+
+							strcpy(hostnames[k], hostname);
+							services[k] = 443;
+							//Enregistrement du service et de l'hostname
+
+							getsocket[k] = creategetsocket(hostname,"443");
+							printf("Ouverture d'une socket sur le port %d du serveur\n", services[k]);
+							//Si la requete est de type CONNECT, on crée une socket vers le serveur HTTPS correspondant au hostname
+							if (getsocket[k] > maxfdp1 - 1) {
+								maxfdp1 = getsocket[k] + 1;
+							}
+							FD_SET(getsocket[k], &rset);
+							//On demande la surveillance de la socket par le select
+
+							send(talksocket[k], "200 OK\n ", strlen("200 OK\n "), 0);
+							//On envoie le request HTTPS de notre client au serveur demande
+
+						}
+					}
+
+
 
 				}						
 
@@ -239,18 +274,27 @@ int main(int argc, char **argv){
 		}
 		//On gere les sockets de dialogue avec les serveurs HTTP/HTTPS et nos clients proxy
 
+/*
 		int test = -1;
 		if(nbentree != 0){
 
 			test = select(maxfdp1, &pset, NULL, NULL, NULL);
 			printf("La valeur de retour du select est de %d\n", test);
 
+			int l = 0;
+			while (l < FD_SETSIZE) {
+				if (getsocket[l] != -1) {
+					printf("la socket numéro %d à la case %d n'est pas traitée\n", getsocket[l],l);
+				}
+				l++;
+			}
+
 			perror("Probleme avec select: nombre d'entree non correcte");
-			printf("%d\n", nbentree);
+			printf("Il reste encore %d entree(s)\n", nbentree);
 			exit(1);
 		}
 		//On renvoie une erreur si tous les descripteurs n'ont pas ete traites
-		
+*/		
 
 	}
 	//On boucle que le traitement des donnees recu par les sockets

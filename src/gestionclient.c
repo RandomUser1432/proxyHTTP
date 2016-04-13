@@ -10,6 +10,8 @@ int readmsg(int currentsocket, char *msg){
 
 	size=recv(currentsocket, msg, REQUESTSIZE, 0);
 
+	printf("%s\n", msg);
+
 	return size;
 }
 
@@ -17,7 +19,7 @@ int readmsg(int currentsocket, char *msg){
 */
 void readmsgHTTP(char *msg, char **request){
 	
-	int i = 0,j = 0, k = 0, h = 0;
+	int i = 0,j = 0, k = 0;
 	char buffer[REQUESTSIZE];
 	
 	memset(buffer, 0, REQUESTSIZE);
@@ -55,16 +57,11 @@ void gettypemsg(char *header, char *type){
 		i++;
 	}
 
-	if (i >= REQUESTSIZE){
-		perror("Premiere ligne d'une requete mal formee");
-		exit(1);
-	}
-
 	type[i] = '\0';
 
 }
 
-// Ouvre une socket vers le nom de domaine pour le service demande
+//Renvoie une socket vers le nom de domaine pour le service demande
 int creategetsocket(char *hostname, char *port){
 	
 	int error, getsocket = 0;
@@ -92,10 +89,36 @@ int creategetsocket(char *hostname, char *port){
 		exit(1);
 	}
 
-	printf("Le client souhaite se connecter au domaine : %s\n", hostname);
-
 	freeaddrinfo(res);
 
 	return getsocket;
 	
+}
+
+//Renvoie l'indice de la derniere socket ayant le meme hostname
+int searchHostname(char *hostname, char **hostnames) {
+	//Variable de retour de la fonction
+	int rep = -1, i = 0;
+
+	for (i = 0; i < FD_SETSIZE; i++) {
+		if (strcmp(hostname, hostnames[i]) == 0) {
+			rep = i;
+		}
+	}
+
+	return rep;
+}
+
+//Renvoie l'indice de la derniere socket ayant le meme numero de port
+int searchService(int service, int *services) {
+	//Variable de retour de fonction
+	int rep = -1,i = 0;
+
+	for (i = 0; i < FD_SETSIZE; i ++) {
+		if (services[i] == service) {
+			rep = i;
+		}
+	}
+
+	return rep;
 }

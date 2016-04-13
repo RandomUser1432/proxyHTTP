@@ -1,11 +1,14 @@
-proxyHTTP: main.o gestionclient.o common.h gestionclient.h
-	gcc -o proxyHTTP main.o gestionclient.o common.h
+proxyHTTP: bin main.o gestionclient.o
+	gcc -o ./proxyHTTP ./bin/main.o ./bin/gestionclient.o
 
-main.o:	main.c common.h gestionclient.h
-	gcc -c main.c common.h gestionclient.h
+bin: 
+	mkdir -p bin
 
-gestionclient.o: gestionclient.c common.h gestionclient.h
-	gcc -c gestionclient.c common.h gestionclient.h
+main.o:	./src/main.c ./src/common.h ./src/gestionclient.h
+	gcc -Wall -Werror -Wextra -c ./src/main.c -o ./bin/main.o
+
+gestionclient.o: ./src/gestionclient.c ./src/common.h ./src/gestionclient.h
+	gcc -Wall -Werror -Wextra -c ./src/gestionclient.c -o ./bin/gestionclient.o
 
 clear:
-	rm -rf *.o proxyHTTP
+	rm -rf ./bin proxyHTTP
